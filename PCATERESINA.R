@@ -2,6 +2,13 @@ library(readr)
 library(dplyr)
 library(FactoMineR)
 library(factoextra)
+library(tidyverse) # Para manipular os dados
+library(stats) # Para PCA
+library(vegan)
+library(ggcorrplot)
+
+
+
 
 Tn <- Teresina  %>% select (- c (1,2,3))
 #Inferter linhas por colunas
@@ -44,22 +51,34 @@ fviz_eig(resPCA, addlabels = T,
 as.data.frame(autoValores)
 
 autovaloresDF<-as.data.frame(autoValores)%>% mutate(dims = as.factor(1:nrow(.)),
-                     varAcum = round(cumulative percentage of variance,1 ))
- 
+                     v = round(' cumulative percentage of variance ',1 ))
+
+
+ # matri de correlação 
+mcor <- resPCA$var$coord
+mcor<- as.data.frame(resPCA$var$coord) 
+ggcorrplot(mcor, lab = T)
+ggpairs(mcor, columns = 1:15, ggplot2::aes(colour= "Din.1"))
+
+ggpairs(mcor, lower = list(continuous = "smooth"))
+
   
-  
+fviz_pca_var(resPCA)   
 
-ggplot(autovaloresDF, aes(x=dims, y= eigenvalue , group=1)) +
-  geom_col(fill="steelblue") +
-  geom_line() +
-  geom_point() +
-  geom_text(aes(label=paste(var.acum, "%")), nudge_y = 6, size = 3) +
-  labs(x="Dimensões", y="Variância acumulada [%] ",
-       title="Gráfico de Variâncias acumuladas")+
-  theme_minimal()
-
-
-
-
+fviz_pca_ind(resPCA,
+             col.ind = "cos2", #Cor pela qualidade de representação
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE, # Texto não sobreposto
+             legend.title = "Representação"
+             
+             
+             fviz_pca_biplot(resPCA, repel = TRUE,
+                             col.var = "#2E9FDF", # cor das variáveis
+                             col.ind = "#696969"  # cor dos automoveis
 
 
+
+
+
+
+            
